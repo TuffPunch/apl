@@ -93,21 +93,21 @@ def calc():
         score += 1
     else:
         score += 3             
-
+    msg = str(score) + ' le sujet est considéré à : '
     if (score <=13):
-        msg = 'Faible Risque'
+        msg += 'Faible Risque'
     elif (score <=25):
-        msg = 'Risque Moyen'
+        msg += 'Risque Moyen'
     else:
-        msg = 'Haut Risque'        
+        msg += 'Haut Risque'        
     result_frame = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2') 
     result_frame.pack()   
     result_label = tk.Label(result_frame,bg='#1da1f2',font=('Arial',30),text='RESULTAT')
     result_label.place(x=510,y=20)     
-    concl = tk.Label(result_frame,bg='#1da1f2',font=('Arial',30),text='Le sujet est considéré à:')
+    concl = tk.Label(result_frame,bg='#1da1f2',font=('Arial',30),text='Le score est :')
     concl.place(x=100,y = 80)
-    output_field = tk.Entry(result_frame,bg='#1da1f2',font=('Arial',30))
-    output_field.place(x= 550, y=80)
+    output_field = tk.Entry(result_frame,bg='#1da1f2',font=('Arial',30),width=35)
+    output_field.place(x= 350, y=80)
     output_field.insert(0, msg)
     switchframe(frame4,result_frame)
     againbtn = tk.Button(result_frame,font=('Arial',30),text='Nouveau patient',command=again)
