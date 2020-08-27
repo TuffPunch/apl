@@ -1,4 +1,5 @@
 import tkinter as tk
+import sqlite3
 from tkinter import END, ACTIVE
 import os
 
@@ -11,20 +12,43 @@ def fermer():
     mainscreen.destroy()
 def again():
     mainscreen.destroy()
-    os.system('python c:/Users/Adel/Desktop/main.py')
+    os.system('python ./main_V1.py')
 def calc():
     temp  = float(temp_entry.get())
+
     tension = tension_select.index(ACTIVE)
+    tension2= extract_selected(tension_select)
+
     mob = mob_select.index(ACTIVE)
+    mob2 = extract_selected(mob_select)
+
     uri = uri_select.index(ACTIVE)
+    uri2= extract_selected(uri_select)
+
     nut = nut_select.index(ACTIVE)
+    nut2 = extract_selected(nut_select)
+
     douleur = douleur_select.index(ACTIVE)
+    douleur2 = extract_selected(douleur_select)
+
     diab = diab_select.index(ACTIVE)
+    diab2 = extract_selected(diab_select)
+
     hum = hum_select.index(ACTIVE)
+    hum2=extract_selected(hum_select)
+
     edm = edm_select.index(ACTIVE)
+    edm2=extract_selected(edm_select)
+
     epi = epi_select.index(ACTIVE)
-    corti = corti_select.index(ACTIVE) 
+    epi2=extract_selected(epi_select)
+
+    corti = corti_select.index(ACTIVE)
+    corti2=extract_selected(corti_select) 
+
     score = 0
+
+
     if (temp <37):
         score += 1
     elif (temp <38):
@@ -99,7 +123,13 @@ def calc():
     elif (score <=25):
         msg += 'Risque Moyen'
     else:
-        msg += 'Haut Risque'        
+        msg += 'Haut Risque' 
+
+
+    insert_patient(name_entry.get(), age_entry.get(), illness_entry.get(), adresse_entry.get())
+    insert_record(temp, tension2, mob2, uri2, nut2, douleur2, diab2, hum2, edm2, epi2, corti, score)
+    #insert_visite()
+
     result_frame = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2') 
     result_frame.pack()   
     result_label = tk.Label(result_frame,bg='#1da1f2',font=('Arial',30),text='RESULTAT')
@@ -116,12 +146,115 @@ def calc():
     closebtn = tk.Button(result_frame,font=('Arial',30),text='Fermer',command=fermer)
     closebtn.place(x=650,y=200)
 
+def extract_selected(listbx):
+    all_items = listbx.get(0, tk.END)
+    print(all_items)
+    selected_index=listbx.index(ACTIVE)
+    print(selected_index)
+    selected_item = all_items[selected_index]
+    return str(selected_item)
+
+def create_patient_table():
+    print("Creating patient table..")
+    conn = sqlite3.connect('visite.db')
+    print("Database opened successfully")
+    c=conn.cursor()
+    c.execute(""" CREATE TABLE IF NOT EXISTS patient (
+    id_pat    INTEGER  PRIMARY KEY AUTOINCREMENT,
+    nom_pat   TEXT NOT NULL,
+    age_pat   INTEGER NOT NULL,
+    maladie TEXT,
+    adresse_pat TEXT );""")
+    print(" table created successfully")
+    conn.commit()
+    conn.close()
+    print("Database closed successfully")
+
+def create_record_table():
+    print("Creating records table..")
+    conn = sqlite3.connect('visite.db')
+    print("Database opened successfully")
+    c=conn.cursor()
+    print("Attempting to create record")
+    c.execute("""CREATE TABLE IF NOT EXISTS record (
+
+    id_record INTEGER PRIMARY KEY AUTOINCREMENT,
+    temperature   REAL NOT NULL ,
+    tension TEXT,
+    mobil_autonom TEXT,
+    inconscience_uri  TEXT,
+    nutrition TEXT,
+    douleur   TEXT,
+    diab  TEXT,
+    humidite  TEXT,
+    exist_problem TEXT,
+    exist_diapo  TEXT,
+    corti TEXT, 
+    score REAL NOT NULL
+);""")
+    print(" table created successfully")
+    conn.commit()
+    conn.close()
+    print("Database closed successfully")
+
+def create_visite_table():
+    print("Creating visite table..")
+    conn = sqlite3.connect('visite.db')
+    print("Database opened successfully")
+    c=conn.cursor()
+    print("Attempting to create users_expenses")
+    c.execute(""" CREATE TABLE IF NOT EXISTS "visite" (
+    id_pat    INTEGER,
+    id_record INTEGER,
+    date  INTEGER,
+    FOREIGN KEY("id_pat") REFERENCES "patient"("id_pat") ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY("id_record") REFERENCES "record"("id_record") ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY("id_pat","id_record")
+);""")
+    print(" table created successfully")
+    conn.commit()
+    conn.close()
+    print("Database closed successfully")
+
+def insert_record(temp, tension,  mob, uri, nut, douleur, diab, hum, edm, epi, corti, score):
+    print("adding record to DB")
+    conn=sqlite3.connect('visite.db')
+    c=conn.cursor()
+    c.execute("""INSERT INTO record(temperature, tension, mobil_autonom, inconscience_uri, nutrition,douleur, diab, humidite, exist_diapo, exist_problem, corti, score)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",(temp, tension, mob, uri, nut, douleur,diab, hum, edm, epi, corti, score))
+    conn.commit()
+    conn.close()
+    print("record was added")
+
+def insert_patient(nom, age, maladie, adresse ):
+    print("adding patient's informations to DB")
+    conn=sqlite3.connect('visite.db')
+    c=conn.cursor()
+    c.execute("""INSERT INTO patient(nom_pat, age_pat, maladie,
+            adresse_pat) VALUES(?,?,?,?)""",(nom, age, maladie, adresse))
+
+    conn.commit()
+    conn.close()
+    print("patient's informations were added")
+
+
+#def insert_visite():
+
+
+
 
 mainscreen = tk.Tk()
 mainscreen.geometry('1300x720')
 mainscreen.title("Assistant Plait de Lit")
 mainscreen.configure(background='#FFFFFF')
 mainframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+############
+
+create_patient_table()
+create_record_table()
+create_visite_table()
+
+
 ## main frame ##
 title = tk.Label(mainframe,bg='#1da1f2',font=('Arial',30),text='APL - Assistant Plait de Lit ')
 title.place(x=450,y=-80)
@@ -156,12 +289,13 @@ tension_select.insert(END, 'Dans la norme','Hypertension','Hypotension')
 tension_label.grid(column=2,row=0,padx=10,pady=10)
 tension_select.grid(column=3,row=0)
 
+
 mob_label = tk.Label(frame2,bg='#1da1f2',font=('Arial',20),text='Mobilité et autonomie :')
 mob_select = tk.Listbox(frame2,font=('Arial',20),height=4)
 mob_select.insert(END, 'Légère dépendance','Dépendance modérée','Dépendance sévère','Dépendance entière')
 mob_label.grid(column=0,row=1,pady=200)
 mob_select.grid(column=1,row=1)
-nextbtn1 = tk.Button(frame2,text='Suivant',font=('Arial',20))
+nextbtn1 = tk.Button(frame2,text='Suivant',font=('Arial',20), command = lambda : extract_selected(tension_select))
 nextbtn1.grid(column=2,row=1)
 
 ## Frame3 ##
