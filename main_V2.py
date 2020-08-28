@@ -1,5 +1,7 @@
 import tkinter as tk
+from tkinter import messagebox
 import sqlite3
+import datetime
 from tkinter import END, ACTIVE, DISABLED, VERTICAL, RIGHT, Y, BOTH, LEFT
 import os
 
@@ -12,7 +14,7 @@ def fermer():
     mainscreen.destroy()
 def again():
     mainscreen.destroy()
-    os.system('python ./Desktop/main_V1.py')
+    os.system('python ./main_V2.py')
 def calc():
     temp  = float(temp_entry.get())
 
@@ -128,7 +130,7 @@ def calc():
 
     insert_patient(name_entry.get(), age_entry.get(), illness_entry.get(), adresse_entry.get())
     insert_record(temp, tension2, mob2, uri2, nut2, douleur2, diab2, hum2, edm2, epi2, corti, score)
-    #insert_visite()
+    insert_visite()
 
     result_frame = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2') 
     result_frame.pack()   
@@ -206,7 +208,7 @@ def create_visite_table():
     c.execute(""" CREATE TABLE IF NOT EXISTS "visite" (
     id_pat    INTEGER,
     id_record INTEGER,
-    date  INTEGER,
+    datee  INTEGER,
     FOREIGN KEY("id_pat") REFERENCES "patient"("id_pat") ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY("id_record") REFERENCES "record"("id_record") ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY("id_pat","id_record")
@@ -238,34 +240,77 @@ def insert_patient(nom, age, maladie, adresse ):
     print("patient's informations were added")
 
 
-#def insert_visite():
+def insert_visite():
+    print("adding to visite")
+    conn=sqlite3.connect('visite.db')
+    c=conn.cursor()
+    last_id=c.execute("select max(id_pat) from patient")
+    last_id=last_id.fetchall()[0][0]
+    print("LAST ID = {}".format(last_id))
+    c.execute("""INSERT INTO visite(id_pat, id_record,datee) VALUES(?,?,?)""",(last_id,last_id, datetime.datetime.today().strftime('%d%m%y')))
+
+    conn.commit()
+    conn.close()
+    print("patient's informations were added")
+
 
 
 def searchrecord():
     name = oldsearch_entry.get()
-    oldresframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
-    oldres_label = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Nom du patient : ')
-    box = tk.Frame(oldresframe)
-    box.place(x=450,y=200)
-    oldres_list = tk.Listbox(box,font=('Arial',20),height=4,width=28)
-    scroll = tk.Scrollbar(box,orient=VERTICAL)
-    scroll.pack(side=RIGHT,fill=Y)
-    
-    oldres_list.config(yscrollcommand=scroll.set)
-    oldres_label.place(x=150,y=100)
-    oldres_list.pack(side=LEFT,fill= BOTH)
-    scroll.config(command=oldres_list.yview)
-    
-    ##Insert data instead of this for statement ##
-    for x in range(100):
-        oldres_list.insert(END, str(x))
 
-    patientname_entry = tk.Entry(oldresframe,bg='#1da1f2',font=('Arial',20))
-    patientname_entry.insert(0, name)
-    patientname_entry.place(x=450, y=100)
-    listlabel = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Historique : ')
-    listlabel.place(x=150,y=200)
-    switchframe(oldframe,oldresframe)
+    conn=sqlite3.connect('visite.db')
+    c=conn.cursor()
+    c.execute("select * from patient where nom_pat = (?)",(name,))
+    res=c.fetchall()
+    print(res)
+    if (len(res) == 0):
+        messagebox.showerror("Erreur!","Nom inexistant!")
+    else:
+        oldresframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+        oldres_label = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Nom du patient : ')
+        box = tk.Frame(oldresframe)
+        box.place(x=450,y=200)
+        oldres_list = tk.Listbox(box,font=('Arial',20),height=4,width=28)
+        scroll = tk.Scrollbar(box,orient=VERTICAL)
+        scroll.pack(side=RIGHT,fill=Y)
+        
+        oldres_list.config(yscrollcommand=scroll.set)
+        oldres_label.place(x=150,y=100)
+        oldres_list.pack(side=LEFT,fill= BOTH)
+        scroll.config(command=oldres_list.yview)
+        
+        ##Insert data instead of this for statement ##
+
+        c.execute("""select score from record where id_record in 
+            (select id_record from visite where id_pat in 
+            (select id_pat from patient where nom_pat=(?)) )""", (name,))
+        scores=c.fetchall()
+        scores=[score[0] for score in scores]
+        print("LES SCORES SONT :" ,scores)
+
+
+        c.execute("select datee from visite where id_pat in (select id_pat from patient where nom_pat = (?))",(name,))
+        dates=c.fetchall()
+        dates=[date[0] for date in dates]
+        print("DATES ", dates)
+        print("LES SCORES SONT :" ,scores)
+
+        historique=list()
+        for i in range(len(scores)):
+            historique.append(str(scores[i])+'    DATE : '+ str(dates[i]) )
+
+
+        for x in historique:
+            oldres_list.insert(END, x)
+
+        patientname_entry = tk.Entry(oldresframe,bg='#1da1f2',font=('Arial',20))
+        patientname_entry.insert(0, name)
+        patientname_entry.place(x=450, y=100)
+        listlabel = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Historique : ')
+        listlabel.place(x=150,y=200)
+        switchframe(oldframe,oldresframe)
+    conn.commit()
+    conn.close()
 
 mainscreen = tk.Tk()
 mainscreen.geometry('1300x720')
