@@ -1,6 +1,6 @@
 import tkinter as tk
 import sqlite3
-from tkinter import END, ACTIVE
+from tkinter import END, ACTIVE, DISABLED, VERTICAL, RIGHT, Y, BOTH, LEFT
 import os
 
 close = 'No'
@@ -12,7 +12,7 @@ def fermer():
     mainscreen.destroy()
 def again():
     mainscreen.destroy()
-    os.system('python ./main_V1.py')
+    os.system('python ./Desktop/main_V1.py')
 def calc():
     temp  = float(temp_entry.get())
 
@@ -140,10 +140,10 @@ def calc():
     output_field.place(x= 350, y=80)
     output_field.insert(0, msg)
     switchframe(frame4,result_frame)
-    againbtn = tk.Button(result_frame,font=('Arial',30),text='Nouveau patient',command=again)
-    againbtn.place(x=250,y=200)
+    againbtn = tk.Button(result_frame,font=('Arial',20),text='Vers le menu principal',command=again)
+    againbtn.place(x=280,y=200)
 
-    closebtn = tk.Button(result_frame,font=('Arial',30),text='Fermer',command=fermer)
+    closebtn = tk.Button(result_frame,font=('Arial',20),text='Fermer',command=fermer)
     closebtn.place(x=650,y=200)
 
 def extract_selected(listbx):
@@ -241,12 +241,37 @@ def insert_patient(nom, age, maladie, adresse ):
 #def insert_visite():
 
 
+def searchrecord():
+    name = oldsearch_entry.get()
+    oldresframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+    oldres_label = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Nom du patient : ')
+    box = tk.Frame(oldresframe)
+    box.place(x=450,y=200)
+    oldres_list = tk.Listbox(box,font=('Arial',20),height=4,width=28)
+    scroll = tk.Scrollbar(box,orient=VERTICAL)
+    scroll.pack(side=RIGHT,fill=Y)
+    
+    oldres_list.config(yscrollcommand=scroll.set)
+    oldres_label.place(x=150,y=100)
+    oldres_list.pack(side=LEFT,fill= BOTH)
+    scroll.config(command=oldres_list.yview)
+    
+    ##Insert data instead of this for statement ##
+    for x in range(100):
+        oldres_list.insert(END, str(x))
 
+    patientname_entry = tk.Entry(oldresframe,bg='#1da1f2',font=('Arial',20))
+    patientname_entry.insert(0, name)
+    patientname_entry.place(x=450, y=100)
+    listlabel = tk.Label(oldresframe,bg='#1da1f2',font=('Arial',20),text='Historique : ')
+    listlabel.place(x=150,y=200)
+    switchframe(oldframe,oldresframe)
 
 mainscreen = tk.Tk()
 mainscreen.geometry('1300x720')
 mainscreen.title("Assistant Plait de Lit")
 mainscreen.configure(background='#FFFFFF')
+newpatient1 = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
 mainframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
 ############
 
@@ -254,28 +279,55 @@ create_patient_table()
 create_record_table()
 create_visite_table()
 
+## mainframe ##
+maintitle = tk.Label(mainframe,bg='#1da1f2',font=('Arial',30),text='APL - Assistant Plait de Lit ')
+maintitle.place(x=430,y=120)
+newrecordbtn = tk.Button(mainframe,font=('Arial',20),text='Ajouter un nouveau patient')
+newrecordbtn.place(x=150,y=280)
+oldrecordbtn = tk.Button(mainframe,font=('Arial',20),text='Consulter un patient')
+oldrecordbtn.place(x=850,y=280)
 
-## main frame ##
-title = tk.Label(mainframe,bg='#1da1f2',font=('Arial',30),text='APL - Assistant Plait de Lit ')
+## oldframe ##
+oldframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+oldtitle = tk.Label(oldframe,bg='#1da1f2',font=('Arial',30),text='Consulter un score précedant ')
+oldtitle.place(x=400,y=80)
+
+oldsearch_label = tk.Label(oldframe,bg='#1da1f2',font=('Arial',20),text='Nom du patient : ')
+oldsearch_entry = tk.Entry(oldframe,font=('Arial',20))
+oldsearch_label.place(x=350,y=200)
+oldsearch_entry.place(x=650,y=200)
+
+oldsearchbtn = tk.Button(oldframe,font=('Arial',20),text='Chercher',command=searchrecord)
+oldsearchbtn.place(x=550,y=350)
+
+
+
+
+
+
+## newpatient1 ##
+title = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',30),text='Données Personelles ')
 title.place(x=450,y=-80)
-name_label = tk.Label(mainframe,bg='#1da1f2',font=('Arial',20),text='Nom :')
-name_entry = tk.Entry(mainframe,font=('Arial',20))
+name_label = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',20),text='Nom :')
+name_entry = tk.Entry(newpatient1,font=('Arial',20))
 name_label.grid(column=0,row=1,padx=250,pady=10)
 name_entry.grid(column=1,row=1)
-age_label = tk.Label(mainframe,bg='#1da1f2',font=('Arial',20),text='Age :')
-age_entry = tk.Entry(mainframe,font=('Arial',20))
+age_label = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',20),text='Age :')
+age_entry = tk.Entry(newpatient1,font=('Arial',20))
 age_label.grid(column=0,row=2,pady=10)
 age_entry.grid(column=1,row=2)
-illness_label = tk.Label(mainframe,bg='#1da1f2',font=('Arial',20),text='Maladie :')
-illness_entry = tk.Entry(mainframe,font=('Arial',20))
+illness_label = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',20),text='Maladie :')
+illness_entry = tk.Entry(newpatient1,font=('Arial',20))
 illness_label.grid(column=0,row=3,pady=10)
 illness_entry.grid(column=1,row=3)
-adresse_label = tk.Label(mainframe,bg='#1da1f2',font=('Arial',20),text='Adresse :')
-adresse_entry = tk.Entry(mainframe,font=('Arial',20))
+adresse_label = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',20),text='Adresse :')
+adresse_entry = tk.Entry(newpatient1,font=('Arial',20))
 adresse_label.grid(column=0,row=4,pady=10)
 adresse_entry.grid(column=1,row=4)
-nextbtn = tk.Button(mainframe,text='Suivant',font=('Arial',20))
-
+nextbtn = tk.Button(newpatient1,text='Suivant',font=('Arial',20))
+nextbtn.grid(column=1)
+retourbtn1 = tk.Button(newpatient1,text='Retour',font=('Arial',20))
+retourbtn1.grid(column=1,row=6,pady=10)
 
 ## Frame2 ##
 frame2 = tk.Frame(mainscreen,padx=10,pady=50,bg='#1da1f2')
@@ -290,13 +342,17 @@ tension_label.grid(column=2,row=0,padx=10,pady=10)
 tension_select.grid(column=3,row=0)
 
 
+
 mob_label = tk.Label(frame2,bg='#1da1f2',font=('Arial',20),text='Mobilité et autonomie :')
 mob_select = tk.Listbox(frame2,font=('Arial',20),height=4)
 mob_select.insert(END, 'Légère dépendance','Dépendance modérée','Dépendance sévère','Dépendance entière')
-mob_label.grid(column=0,row=1,pady=200)
+mob_label.grid(column=0,row=1)
 mob_select.grid(column=1,row=1)
 nextbtn1 = tk.Button(frame2,text='Suivant',font=('Arial',20), command = lambda : extract_selected(tension_select))
-nextbtn1.grid(column=2,row=1)
+nextbtn1.grid(column=2,row=3)
+
+retourbtn2 = tk.Button(frame2,text='Retour',font=('Arial',20))
+retourbtn2.grid(column=1,row=3,pady=10)
 
 ## Frame3 ##
 frame3 = tk.Frame(mainscreen,padx=10,pady=50,bg='#1da1f2')
@@ -320,6 +376,9 @@ douleur_select.grid(column=1,row=2)
 
 nextbtn2 = tk.Button(frame3,text='Suivant',font=('Arial',20))
 nextbtn2.grid(column=1,row=3,pady=50)
+
+retourbtn3 = tk.Button(frame3,text='Retour',font=('Arial',20))
+retourbtn3.grid(column=0,row=3,pady=10)
 
 ## frame 4 ##
 frame4 = tk.Frame(mainscreen,padx=10,pady=50,bg='#1da1f2')
@@ -354,16 +413,25 @@ corti_label.grid(column=0,row=4,pady=10)
 corti_select.grid(column=1,row=4)
 
 calc_btn = tk.Button(frame4,text='Calculer',font=('Arial',20),command=calc)
-calc_btn.grid(column=1,row=5,pady=50)
+calc_btn.grid(column=1,row=5,pady=30)
+
+retourbtn4 = tk.Button(frame4,text='Retour',font=('Arial',20))
+retourbtn4.grid(column=1,row=6)
 
 
 
-nextbtn['command'] = lambda arg1=mainframe , arg2=frame2: switchframe(arg1,arg2)
+nextbtn['command'] = lambda arg1=newpatient1 , arg2=frame2: switchframe(arg1,arg2)
+retourbtn1['command'] = lambda arg1=mainframe , arg2=newpatient1: switchframe(arg2,arg1)
 nextbtn1['command'] = lambda arg1=frame2 , arg2=frame3: switchframe(arg1,arg2)
+retourbtn2['command'] = lambda arg1=frame2 , arg2=newpatient1: switchframe(arg1,arg2)
 nextbtn2['command'] = lambda arg1=frame3 , arg2=frame4: switchframe(arg1,arg2)
+retourbtn3['command'] = lambda arg1=frame3 , arg2=frame2: switchframe(arg1,arg2)
+retourbtn4['command'] = lambda arg1=frame4 , arg2=frame3: switchframe(arg1,arg2)
+newrecordbtn['command'] = lambda arg1=mainframe , arg2=newpatient1: switchframe(arg1,arg2)
+oldrecordbtn['command'] = lambda arg1=mainframe , arg2=oldframe: switchframe(arg1,arg2)
 
-nextbtn.grid(column=1)
+
+
 mainframe.pack(expand='YES',fill='both')
-
 mainscreen.mainloop()
 
