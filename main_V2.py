@@ -291,7 +291,9 @@ def searchrecord():
 
         c.execute("select datee from visite where id_pat in (select id_pat from patient where nom_pat = (?))",(name,))
         dates=c.fetchall()
-        dates=[date[0] for date in dates]
+        dates=[str(date[0]) for date in dates]
+        dates=[date[:2]+'/'+date[2:4]+'/'+date[4:] for date in dates]
+
         print("DATES ", dates)
         print("LES SCORES SONT :" ,scores)
 
