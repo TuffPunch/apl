@@ -15,9 +15,16 @@ def fermer():
 def again():
     mainscreen.destroy()
     os.system('python ./main_V2.py')
+
+def tempcheck(f1,f2):
+    temp = temp_entry.get()
+    if (temp.isdigit()):
+         switchframe(f1,f2) 
+    else:
+        messagebox.showerror('Erreur!!','Veuillez saisir la température correctement')   
 def calc():
     temp  = float(temp_entry.get())
-
+   
     tension = tension_select.index(ACTIVE)
     tension2= extract_selected(tension_select)
 
@@ -252,9 +259,15 @@ def insert_visite():
     conn.commit()
     conn.close()
     print("patient's informations were added")
-
-
-
+####################
+mainscreen = tk.Tk()
+mainscreen.geometry('1300x720')
+mainscreen.title("Assistant Plait de Lit")
+mainscreen.configure(background='#FFFFFF')
+newpatient1 = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+mainframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+oldframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+####################
 def searchrecord():
     name = oldsearch_entry.get()
 
@@ -278,7 +291,10 @@ def searchrecord():
         oldres_label.place(x=150,y=100)
         oldres_list.pack(side=LEFT,fill= BOTH)
         scroll.config(command=oldres_list.yview)
-        
+
+        returnbtn1 = tk.Button(oldresframe,font=('Arial',20),text='Retour')
+        returnbtn1.place(x=565,y=430)
+        returnbtn1['command'] =  lambda arg1=oldresframe , arg2=oldframe :  switchframe(arg1,arg2)
         ##Insert data instead of this for statement ##
 
         c.execute("""select score from record where id_record in 
@@ -314,12 +330,7 @@ def searchrecord():
     conn.commit()
     conn.close()
 
-mainscreen = tk.Tk()
-mainscreen.geometry('1300x720')
-mainscreen.title("Assistant Plait de Lit")
-mainscreen.configure(background='#FFFFFF')
-newpatient1 = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
-mainframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+
 ############
 
 create_patient_table()
@@ -327,7 +338,7 @@ create_record_table()
 create_visite_table()
 
 ## mainframe ##
-maintitle = tk.Label(mainframe,bg='#1da1f2',font=('Arial',30),text='APL - Assistant Plait de Lit ')
+maintitle = tk.Label(mainframe,bg='#1da1f2',font=('Arial',30),text='Prévalence des Escales ')
 maintitle.place(x=430,y=120)
 newrecordbtn = tk.Button(mainframe,font=('Arial',20),text='Ajouter un nouveau patient')
 newrecordbtn.place(x=150,y=280)
@@ -335,7 +346,7 @@ oldrecordbtn = tk.Button(mainframe,font=('Arial',20),text='Consulter un patient'
 oldrecordbtn.place(x=850,y=280)
 
 ## oldframe ##
-oldframe = tk.Frame(mainscreen,padx=10,pady=90,bg='#1da1f2')
+
 oldtitle = tk.Label(oldframe,bg='#1da1f2',font=('Arial',30),text='Consulter un score précedant ')
 oldtitle.place(x=400,y=80)
 
@@ -343,6 +354,10 @@ oldsearch_label = tk.Label(oldframe,bg='#1da1f2',font=('Arial',20),text='Nom du 
 oldsearch_entry = tk.Entry(oldframe,font=('Arial',20))
 oldsearch_label.place(x=350,y=200)
 oldsearch_entry.place(x=650,y=200)
+
+returnbtn = tk.Button(oldframe,font=('Arial',20),text='Retour')
+returnbtn.place(x=565,y=430)
+
 
 oldsearchbtn = tk.Button(oldframe,font=('Arial',20),text='Chercher',command=searchrecord)
 oldsearchbtn.place(x=550,y=350)
@@ -375,6 +390,8 @@ nextbtn = tk.Button(newpatient1,text='Suivant',font=('Arial',20))
 nextbtn.grid(column=1)
 retourbtn1 = tk.Button(newpatient1,text='Retour',font=('Arial',20))
 retourbtn1.grid(column=1,row=6,pady=10)
+nb = tk.Label(newpatient1,bg='#1da1f2',font=('Arial',20),text='NB: Veuillez saisir les données personelles correctement')
+nb.place(x=290,y=400)
 
 ## Frame2 ##
 frame2 = tk.Frame(mainscreen,padx=10,pady=50,bg='#1da1f2')
@@ -469,14 +486,14 @@ retourbtn4.grid(column=1,row=6)
 
 nextbtn['command'] = lambda arg1=newpatient1 , arg2=frame2: switchframe(arg1,arg2)
 retourbtn1['command'] = lambda arg1=mainframe , arg2=newpatient1: switchframe(arg2,arg1)
-nextbtn1['command'] = lambda arg1=frame2 , arg2=frame3: switchframe(arg1,arg2)
+nextbtn1['command'] = lambda arg1=frame2 , arg2=frame3: tempcheck(arg1,arg2)
 retourbtn2['command'] = lambda arg1=frame2 , arg2=newpatient1: switchframe(arg1,arg2)
 nextbtn2['command'] = lambda arg1=frame3 , arg2=frame4: switchframe(arg1,arg2)
 retourbtn3['command'] = lambda arg1=frame3 , arg2=frame2: switchframe(arg1,arg2)
 retourbtn4['command'] = lambda arg1=frame4 , arg2=frame3: switchframe(arg1,arg2)
 newrecordbtn['command'] = lambda arg1=mainframe , arg2=newpatient1: switchframe(arg1,arg2)
 oldrecordbtn['command'] = lambda arg1=mainframe , arg2=oldframe: switchframe(arg1,arg2)
-
+returnbtn['command'] = lambda arg1=oldframe , arg2=mainframe :  switchframe(arg1,arg2)
 
 
 mainframe.pack(expand='YES',fill='both')
